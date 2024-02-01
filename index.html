@@ -1,44 +1,79 @@
 <script src="./js/base64.min.js"></script>
+<!-- <script src="https://github.com/octokit/.*"></script> -->
 
 <body>
     <!-- 上传文件:  <input type="file" id="fileInput"></input><br/> -->
-    token:  <input type="txt" id="token"></input><br/>
-<br/>
-    <button  type="button" id="fileOutput">上传</button><br/>
+    token: <input type="txt" id="token"></input><br />
+    <br />
+    <button type="button" id="fileOutput">上传</button><br />
 </body>
 
 <script type="module">
-import { Octokit } from "https://esm.sh/@octokit/core";
-// import { Base64 } from 'https://github.com/dankogai/js-base64'
+    import { Octokit } from "https://esm.sh/octokit";
+    // import { Base64 } from 'https://github.com/dankogai/js-base64'
+
+    let octokit = new Octokit({ auth: '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' });
+
+    const fileOutput = document.getElementById('fileOutput');
+
+    fileOutput.addEventListener('click', (e) => {
+        upload("hello,world,hello,kitty")
+    });
 
 
+    async function upload(fileString) {
+        let tokenDiv = document.getElementById('token');
+        // let octokit = new Octokit({ auth: tokenDiv.innerText });
+        // 
+        let response = await octokit.request('GET /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+            // owner: 'zhumisai',
+            // repo: 'zhumisai-web',
+            // path: 'data.csv',
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        })
+        console.log(response)
 
-const fileOutput = document.getElementById('fileOutput');
-
-fileOutput.addEventListener('click', (e) => {
+        await octokit.request('PUT /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+            // owner: 'zhumisai',
+            // repo: 'zhumisai-web',
+            // path: 'data.csv',
+            message: 'commit data.csv',
+            committer: {
+                name: 'from_browser',
+                email: 'guest_abc@github.com'
+            },
+            sha: response.data.sha,
+            content: Base64.encode(fileString),
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        })
+        // fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+        //     method: 'put',
+        //     body: JSON.stringify({
+        //         "message": "commit data.csv",
+        //         "committer": {
+        //             "name": "from_browser",
+        //             "email": "guest_abc@github.com"
+        //         },
+        //         "content": "aGVsbG8sd29ybGQsaGVsbG8sa2l0dHk=",
+        //         "sha": response.sha
+        //     }),
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': 'Bearer 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',
+        //         'X-Github-Api-Version': '2022-11-28',
+        //         'Accept':'application/vnd.github.v3+json'
+        //     }
+        // })
+        //     .then(function (data) {
+        //         return data.text();
+        //     }).then(function (data) {
+        //         console.log(data)
+        //     });
+    }
     upload("hello,world,hello,kitty")
-});
-
-
-async function upload(fileString) {
-    let tokenDiv = document.getElementById('token');
-    let octokit = new Octokit({ auth: tokenDiv.innerText });
-    // let octokit = new Octokit({ auth: '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' });
-    await octokit.request('PUT /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
-        owner: 'zhumisai',
-        repo: 'zhumisai-web',
-        path: 'data.csv',
-        message: 'commit data.csv',
-        committer: {
-            name: 'from_browser',
-            email: 'guest_abc@github.com'
-        },
-        content: Base64.encode(fileString),
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-        }
-    })
-}
-upload("hello,world,hello,kitty")
-console.log("hello")
+    console.log("hello")
 </script>
