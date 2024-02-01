@@ -1,88 +1,73 @@
 <script src="./js/base64.min.js"></script>
+<script src="./js/git-helper-fetch.js"></script>
+<script src="./js/maj-helper.js"></script>
 <!-- <script src="https://github.com/octokit/.*"></script> -->
 
 <body>
-    <!-- 上传文件:  <input type="file" id="fileInput"></input><br/> -->
-    token: <input type="txt" id="authToken"></input><br />
+    打开文件（雀魂牌譜記錄-賽事...csv）：<input type="file" id="fileInput"></input><br/>
+    <!-- <button type="button" id="fileInput">打开文件</button><br /> -->
     <br />
-    <button type="button" id="fileOutput">上传</button><br />
+    <!-- 授权码: <input type="txt" id="authToken" placeholder="填写后可保存: ghp_ABCDEFG..."></input><button type="button" id="fileOutput">保存数据</button><br />
+    <br />
+    <button type="button" id="fileOutput">下载为csv</button><br /> -->
+    输出csv源数据: 　　 授权码: <input type="txt" id="authToken" placeholder="填写后可保存: ghp_ABCDEFG..."></input><button type="button" id="saveBtn">保存到后台</button>　　<button  type="button" id="downloadBtn">下载到本地</button><br/>
+    <div id="output" style="
+        border: 2px;
+        border-style: solid;
+        border-color: black;
+    "><br></div>
 </body>
 
 <script type="module">
-    import { Octokit } from "https://esm.sh/octokit";
+    // import { Octokit } from "https://esm.sh/octokit";
     // import { Base64 } from 'https://github.com/dankogai/js-base64'
 
- 
 
-    const fileOutput = document.getElementById('fileOutput');
+    const fileInput = document.getElementById('fileInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const saveBtn = document.getElementById('saveBtn');
 
-    fileOutput.addEventListener('click', (e) => {
-        upload("hello,world,hello,kitty")
+    //触发器
+    //==============
+
+    //==========打开文件==========
+    fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+	  let csv = event.target.result;
+      let dict = calc(csvToJson(csv))
+      let table = printDict2Table(dict)
+	  document.getElementById('output').innerText = table;
+    };
+    reader.readAsText(file);
+  });
+
+
+
+    //==========保存按钮==========
+    saveBtn.addEventListener('click', (e) => {
+        let authToken = document.getElementById('authToken').value;
+        if(!authToken){
+            alert("未填写授权码！")
+            return
+        }
+        let csv = document.getElementById('output').innerText;
+        if(!csv){
+            alert("数据为空！")
+            return
+        }
+        console.log(authToken)
+        upload(authToken, csv)
     });
 
-
-    async function upload(fileString) {
-        let authToken = document.getElementById('authToken').value;
-        console.log(authToken)
-        let octokit = new Octokit({ auth: authToken });
-        // 
-        let response = await octokit.request('GET /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
-            // owner: 'zhumisai',
-            // repo: 'zhumisai-web',
-            // path: 'data.csv',
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        })
-        checkOctokitResponse(response)
-        console.log(response)
-
-        let resposne2 = await octokit.request('PUT /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
-            // owner: 'zhumisai',
-            // repo: 'zhumisai-web',
-            // path: 'data.csv',
-            message: 'commit data.csv',
-            committer: {
-                name: 'from_browser',
-                email: 'guest_abc@github.com'
-            },
-            sha: response.data.sha,
-            content: Base64.encode(fileString),
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        })
-        checkOctokitResponse(resposne2)
-        // fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
-        //     method: 'put',
-        //     body: JSON.stringify({
-        //         "message": "commit data.csv",
-        //         "committer": {
-        //             "name": "from_browser",
-        //             "email": "guest_abc@github.com"
-        //         },
-        //         "content": "aGVsbG8sd29ybGQsaGVsbG8sa2l0dHk=",
-        //         "sha": response.sha
-        //     }),
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': 'Bearer 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',
-        //         'X-Github-Api-Version': '2022-11-28',
-        //         'Accept':'application/vnd.github.v3+json'
-        //     }
-        // })
-        //     .then(function (data) {
-        //         return data.text();
-        //     }).then(function (data) {
-        //         console.log(data)
-        //     });
-    }
-
-    function checkOctokitResponse(response){
-        if(!response){
-            alert("错误")
-        } else if(response.status != 200){
-            alert("错误码("+response.status+"), 联系网站管理员")
-        }
-    }
+    //==========下载按钮==========
+    downloadBtn.addEventListener('click', (e) => {
+        let csv = document.getElementById('output').innerText;
+        if(!csv || !csv.trim()){
+            alert("数据为空！")
+            return
+        }    
+        exportToCsv(csv.trim())
+    });
 </script>
