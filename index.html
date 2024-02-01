@@ -1,23 +1,33 @@
-<script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.6/base64.min.js"></script>
+<script src="./js/base64.min.js"></script>
 
 <body>
-    上传文件:  <input type="file" id="fileInput"></input><br/>
-
+    <!-- 上传文件:  <input type="file" id="fileInput"></input><br/> -->
+    token:  <input type="txt" id="token"></input><br/>
+<br/>
+    <button  type="button" id="fileOutput">上传</button><br/>
 </body>
 
 <script type="module">
 import { Octokit } from "https://esm.sh/@octokit/core";
 // import { Base64 } from 'https://github.com/dankogai/js-base64'
 
-const octokit = new Octokit({ auth: `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` });
 
-console.log(octokit)
-//
+
+const fileOutput = document.getElementById('fileOutput');
+
+fileOutput.addEventListener('click', (e) => {
+    upload("hello,world,hello,kitty")
+});
 
 
 async function upload(fileString) {
+    let tokenDiv = document.getElementById('token');
+    let octokit = new Octokit({ auth: tokenDiv.innerText });
+    // let octokit = new Octokit({ auth: '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' });
     await octokit.request('PUT /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
-        path: 'PATH',
+        owner: 'zhumisai',
+        repo: 'zhumisai-web',
+        path: 'data.csv',
         message: 'commit data.csv',
         committer: {
             name: 'from_browser',
