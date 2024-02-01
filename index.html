@@ -1,0 +1,34 @@
+<script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.6/base64.min.js"></script>
+
+<body>
+    上传文件:  <input type="file" id="fileInput"></input><br/>
+
+</body>
+
+<script type="module">
+import { Octokit } from "https://esm.sh/@octokit/core";
+// import { Base64 } from 'https://github.com/dankogai/js-base64'
+
+const octokit = new Octokit({ auth: `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` });
+
+console.log(octokit)
+//
+
+
+async function upload(fileString) {
+    await octokit.request('PUT /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+        path: 'PATH',
+        message: 'commit data.csv',
+        committer: {
+            name: 'from_browser',
+            email: 'guest_abc@github.com'
+        },
+        content: Base64.encode(fileString),
+        headers: {
+            'X-GitHub-Api-Version': '2022-11-28'
+        }
+    })
+}
+upload("hello,world,hello,kitty")
+console.log("hello")
+</script>
