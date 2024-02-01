@@ -27,6 +27,7 @@
     const downloadBtn = document.getElementById('downloadBtn');
     const saveBtn = document.getElementById('saveBtn');
 
+    let detail_csv = undefined
     //触发器
     //==============
 
@@ -35,10 +36,10 @@
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onload = (event) => {
-	  let csv = event.target.result;
-      let dict = calc(csvToJson(csv))
-      let table = printDict2Table(dict)
-	  document.getElementById('output').innerText = table;
+      detail_csv = event.target.result;
+      let dict = calc(csvToJson(detail_csv))
+      let summary_csv = dictToSummary(dict)
+	  document.getElementById('output').innerText = summary_csv;
     };
     reader.readAsText(file);
   });
@@ -52,13 +53,14 @@
             alert("未填写授权码！")
             return
         }
-        let csv = document.getElementById('output').innerText;
-        if(!csv){
+        let summary_csv = document.getElementById('output').innerText;
+        if(!summary_csv){
             alert("数据为空！")
             return
         }
         console.log(authToken)
-        upload(authToken, csv)
+        upload(authToken, 'detail.csv', detail_csv)
+        upload(authToken, 'summary.csv', summary_csv)
     });
 
     //==========下载按钮==========

@@ -1,6 +1,6 @@
-async function upload(authToken, fileString) {
+async function upload(authToken, fileName, fileString) {
     // 
-    let response = await fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+    let response = await fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/assets/'+fileName, {
         method: 'get',
         headers: {
             'Authorization': 'Bearer '+ authToken,
@@ -13,7 +13,7 @@ async function upload(authToken, fileString) {
         return
     }
     let jspnResp = JSON.parse(await response.text())
-    let response2 = await fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
+    let response2 = await fetch('https://api.github.com/repos/zhumisai/zhumisai-web/contents/assets/'+fileName, {
         method: 'put',
         body: JSON.stringify({
             "message": "commit data.csv",
