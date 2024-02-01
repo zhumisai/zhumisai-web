@@ -3,7 +3,7 @@
 
 <body>
     <!-- 上传文件:  <input type="file" id="fileInput"></input><br/> -->
-    token: <input type="txt" id="token"></input><br />
+    token: <input type="txt" id="authToken"></input><br />
     <br />
     <button type="button" id="fileOutput">上传</button><br />
 </body>
@@ -12,7 +12,7 @@
     import { Octokit } from "https://esm.sh/octokit";
     // import { Base64 } from 'https://github.com/dankogai/js-base64'
 
-    let octokit = new Octokit({ auth: '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' });
+ 
 
     const fileOutput = document.getElementById('fileOutput');
 
@@ -22,8 +22,9 @@
 
 
     async function upload(fileString) {
-        let tokenDiv = document.getElementById('token');
-        // let octokit = new Octokit({ auth: tokenDiv.innerText });
+        let authToken = document.getElementById('authToken').value;
+        console.log(authToken)
+        let octokit = new Octokit({ auth: authToken });
         // 
         let response = await octokit.request('GET /repos/zhumisai/zhumisai-web/contents/asset/data.csv', {
             // owner: 'zhumisai',
